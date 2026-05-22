@@ -7,4 +7,5 @@ int main(){
     cout << "coba lagi";
     cout << "coba lagi 2";
     cout << "coba lagi 3";
+    cout << "coba lagi 4";
 }
