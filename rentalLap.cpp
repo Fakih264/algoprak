@@ -6,4 +6,5 @@ int main(){
     cout << "ini ngapain?";
     cout << "coba lagi";
     cout << "coba lagi 2";
+    cout << "coba lagi 3";
 }
