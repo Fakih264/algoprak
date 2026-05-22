@@ -81,6 +81,86 @@ void tambahBookingFile(int id, string nama, string lapangan, int tanggal, int ja
     }
 }
 
+void tampil(){
+    if(head == NULL){
+        cout << "\nData kosong!\n";
+        return;
+    }
+
+    cout << "\n===========================================================\n";
+    cout << left << setw(5) << "No"
+         << setw(5) << "ID"
+         << setw(20) << "Nama"
+         << setw(15) << "Lapangan"
+         << setw(10) << "Tanggal"
+         << setw(5) << "Jam" << endl;
+    cout << "===========================================================\n";
+
+    Booking *bantu = head;
+    int no = 1;
+
+    while(bantu != NULL){
+        cout << left << setw(5) << no++
+             << setw(5) << bantu->id
+             << setw(20) << bantu->nama
+             << setw(15) << bantu->lapangan
+             << setw(10) << bantu->tanggal
+             << setw(5) << bantu->jam << endl;
+        bantu = bantu->next;
+    }
+
+    cout << "===========================================================\n";
+}
+
+void cari(string nama){
+    Booking *bantu = head;
+    while(bantu != NULL){
+        if(bantu->nama == nama){
+            cout << "\nData ditemukan:\n";
+            cout << "ID       : " << bantu->id << endl;
+            cout << "Nama     : " << bantu->nama << endl;
+            cout << "Lapangan : " << bantu->lapangan << endl;
+            cout << "Tanggal  : " << bantu->tanggal << endl;
+            cout << "Jam      : " << bantu->jam << endl;
+            return;
+        }
+        bantu = bantu->next;
+    }
+    cout << "Data tidak ditemukan\n";
+}
+
+void sortNama(){
+    Booking *i, *j;
+    for(i = head; i != NULL; i = i->next){
+        for(j = i->next; j != NULL; j = j->next){
+            if(i->tanggal > j->tanggal || 
+              (i->tanggal == j->tanggal && i->jam > j->jam)){
+                swap(i->id, j->id);
+                swap(i->nama, j->nama);
+                swap(i->lapangan, j->lapangan);
+                swap(i->tanggal, j->tanggal);
+                swap(i->jam, j->jam);
+            }
+        }
+    }
+    cout << "Data sudah diurutkan berdasarkan tanggal & jam\n";
+}
+
+void simpanFile(){
+    ofstream file("booking.txt");
+
+    Booking *bantu = head;
+    while(bantu != NULL){
+        file << bantu->id << ","
+             << bantu->nama << ","
+             << bantu->lapangan << ","
+             << bantu->tanggal << ","
+             << bantu->jam << endl;
+        bantu = bantu->next;
+    }
+
+    cout << "Data berhasil disimpan\n";
+}
 int main(){
     int pilih;
 
@@ -114,4 +194,21 @@ int main(){
             int jam = inputAngka("Jam: ");
 
             tambahBooking(id, nama, lapangan, tanggal, jam);
+            else if(pilih == 2) tampil();
+        else if(pilih == 3){
+            string nama = inputString("Cari nama: ");
+            cari(nama);
         }
+        else if(pilih == 4) sortNama();
+        else if(pilih == 5) simpanFile();
+
+        }while(pilih != 0);
+
+    while(head != NULL){
+        Booking *hapus = head;
+        head = head->next;
+        delete hapus;
+    }
+    cout << "Terima kasih!\n";
+    return 0;
+}
