@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include <cstdio>
+#include <cstdio> 
 using namespace std;
 
 struct Booking {
@@ -78,68 +78,6 @@ void tampil(){
          << setw(5) << "Jam" << endl;
     cout << "===========================================================\n";
 
-    void simpanFile(){
-    FILE *file = fopen("booking.txt", "w");
-
-    if(file == NULL){
-        cout << "Gagal membuka file untuk menulis!\n";
-        return;
-    }
-
-    Booking *bantu = head;
-
-    while(bantu != NULL){
-        fprintf(file, "%d,%s,%s,%d,%d\n",
-                bantu->id,
-                bantu->nama.c_str(),
-                bantu->lapangan.c_str(),
-                bantu->tanggal,
-                bantu->jam);
-
-        bantu = bantu->next;
-    }
-
-    fclose(file);
-    cout << "Data berhasil disimpan ke booking.txt\n";
-}
-
-void bacaFile(){
-    FILE *file = fopen("booking.txt", "r");
-
-    if(file == NULL){
-        cout << "File belum ada atau gagal dibuka!\n";
-        return;
-    }
-
-    while(head != NULL){
-        Booking *hapus = head;
-        head = head->next;
-        delete hapus;
-    }
-
-    tail = NULL;
-
-    int id, tanggal, jam;
-    char nama[100], lapangan[100];
-
-    while(fscanf(file, "%d,%[^,],%[^,],%d,%d\n",
-                 &id,
-                 nama,
-                 lapangan,
-                 &tanggal,
-                 &jam) != EOF){
-
-        tambahBooking(id,
-                       string(nama),
-                       string(lapangan),
-                       tanggal,
-                       jam);
-    }
-
-    fclose(file);
-    cout << "Data berhasil dibaca dari booking.txt\n";
-}
-
     Booking *bantu = head;
     int no = 1;
 
@@ -155,16 +93,159 @@ void bacaFile(){
     cout << "===========================================================\n";
 }
 
+void cari(string nama){
+    Booking *bantu = head;
+    while(bantu != NULL){
+        if(bantu->nama == nama){
+            cout << "\nData ditemukan:\n";
+            cout << "ID       : " << bantu->id << endl;
+            cout << "Nama     : " << bantu->nama << endl;
+            cout << "Lapangan : " << bantu->lapangan << endl;
+            cout << "Tanggal  : " << bantu->tanggal << endl;
+            cout << "Jam      : " << bantu->jam << endl;
+            return;
+        }
+        bantu = bantu->next;
+    }
+    cout << "Data tidak ditemukan\n";
+}
+
+void sortNama(){
+    Booking *i, *j;
+    for(i = head; i != NULL; i = i->next){
+        for(j = i->next; j != NULL; j = j->next){
+            if(i->tanggal > j->tanggal || 
+              (i->tanggal == j->tanggal && i->jam > j->jam)){
+                swap(i->id, j->id);
+                swap(i->nama, j->nama);
+                swap(i->lapangan, j->lapangan);
+                swap(i->tanggal, j->tanggal);
+                swap(i->jam, j->jam);
+            }
+        }
+    }
+    cout << "Data sudah diurutkan berdasarkan tanggal & jam\n";
+}
+
+void hapus(int nomor){
+    if(head == NULL){
+        cout << "Data kosong!\n";
+        return;
+    }
+
+    Booking *bantu = head;
+    Booking *prev = NULL;
+    int no = 1;
+
+    while(bantu != NULL && no != nomor){
+        prev = bantu;
+        bantu = bantu->next;
+        no++;
+    }
+
+    if(bantu == NULL){
+        cout << "Nomor tidak ditemukan!\n";
+        return;
+    }
+
+    if(prev == NULL) head = bantu->next;
+    else prev->next = bantu->next;
+
+    if(bantu == tail) tail = prev;
+
+    delete bantu;
+    cout << "Data berhasil dihapus\n";
+}
+
+void edit(int nomor){
+    Booking *bantu = head;
+    int no = 1;
+
+    while(bantu != NULL && no != nomor){
+        bantu = bantu->next;
+        no++;
+    }
+
+    if(bantu == NULL){
+        cout << "Data tidak ditemukan!\n";
+        return;
+    }
+
+    cout << "\nMasukkan data baru:\n";
+    int id;
+    do{
+        id = inputAngka("ID baru: ");
+        if(id != bantu->id && cekID(id)){
+            cout << "ID sudah ada!\n";
+        }
+    }while(id != bantu->id && cekID(id));
+
+    bantu->id = id;
+    bantu->nama = inputString("Nama baru: ");
+    bantu->lapangan = inputString("Lapangan baru: ");
+    bantu->tanggal = inputAngka("Tanggal baru: ");
+    bantu->jam = inputAngka("Jam baru: ");
+
+    cout << "Data berhasil diupdate\n";
+}
+
+void simpanFile(){
+    FILE *file = fopen("booking.txt", "w");
+    if(file == NULL){
+        cout << "Gagal membuka file untuk menulis!\n";
+        return;
+    }
+
+    Booking *bantu = head;
+    while(bantu != NULL){
+        fprintf(file, "%d,%s,%s,%d,%d\n", bantu->id, bantu->nama.c_str(), bantu->lapangan.c_str(), bantu->tanggal, bantu->jam);
+        bantu = bantu->next;
+    }
+
+    fclose(file);
+    cout << "Data berhasil disimpan ke booking.txt\n";
+}
+
+void bacaFile(){
+    FILE *file = fopen("booking.txt", "r");
+    if(file == NULL){
+        cout << "File belum ada atau gagal dibuka!\n";
+        return;
+    }
+
+    while(head != NULL){
+        Booking *hapus = head;
+        head = head->next;
+        delete hapus;
+    }
+    tail = NULL;
+
+    int id, tanggal, jam;
+    char nama[100], lapangan[100];
+
+    while(fscanf(file, "%d,%[^,],%[^,],%d,%d\n", &id, nama, lapangan, &tanggal, &jam) != EOF){
+        tambahBooking(id, string(nama), string(lapangan), tanggal, jam);
+    }
+
+    fclose(file);
+    cout << "Data berhasil dibaca dari booking.txt\n";
+}
+
 int main(){
     int pilih;
+
     do{
         cout << "\n=================================\n";
         cout << "       BOOKING LAPANGAN\n";
         cout << "=================================\n";
         cout << "1. Tambah Booking\n";
         cout << "2. Tampilkan Data\n";
+        cout << "3. Cari Data\n";
+        cout << "4. Sorting Tanggal & Jam\n";
         cout << "5. Simpan ke File\n";
         cout << "6. Baca dari File\n";
+        cout << "7. Hapus Data\n";
+        cout << "8. Edit Data\n";
         cout << "0. Keluar\n";
         cout << "=================================\n";
 
@@ -190,18 +271,39 @@ int main(){
             case 2:
                 tampil();
                 break;
+            case 3: {
+                string nama = inputString("Cari nama: ");
+                cari(nama);
+                break;
+            }
+            case 4:
+                sortNama();
+                break;
             case 5:
                 simpanFile();
-                break;           
+                break;
             case 6:
                 bacaFile();
                 break;
+            case 7: {
+                tampil();
+                int no = inputAngka("Nomor yang dihapus: ");
+                hapus(no);
+                break;
+            }
+            case 8: {
+                tampil();
+                int no = inputAngka("Nomor yang diedit: ");
+                edit(no);
+                break;
+            }
             case 0:
                 break;
             default:
                 cout << "Pilihan menu tidak valid!\n";
                 break;
         }
+
     }while(pilih != 0);
 
     while(head != NULL){
@@ -209,5 +311,7 @@ int main(){
         head = head->next;
         delete hapus;
     }
+
+    cout << "Terima kasih!\n";
     return 0;
 }
