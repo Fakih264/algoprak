@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 using namespace std;
 
 struct Booking {
@@ -77,6 +78,68 @@ void tampil(){
          << setw(5) << "Jam" << endl;
     cout << "===========================================================\n";
 
+    void simpanFile(){
+    FILE *file = fopen("booking.txt", "w");
+
+    if(file == NULL){
+        cout << "Gagal membuka file untuk menulis!\n";
+        return;
+    }
+
+    Booking *bantu = head;
+
+    while(bantu != NULL){
+        fprintf(file, "%d,%s,%s,%d,%d\n",
+                bantu->id,
+                bantu->nama.c_str(),
+                bantu->lapangan.c_str(),
+                bantu->tanggal,
+                bantu->jam);
+
+        bantu = bantu->next;
+    }
+
+    fclose(file);
+    cout << "Data berhasil disimpan ke booking.txt\n";
+}
+
+void bacaFile(){
+    FILE *file = fopen("booking.txt", "r");
+
+    if(file == NULL){
+        cout << "File belum ada atau gagal dibuka!\n";
+        return;
+    }
+
+    while(head != NULL){
+        Booking *hapus = head;
+        head = head->next;
+        delete hapus;
+    }
+
+    tail = NULL;
+
+    int id, tanggal, jam;
+    char nama[100], lapangan[100];
+
+    while(fscanf(file, "%d,%[^,],%[^,],%d,%d\n",
+                 &id,
+                 nama,
+                 lapangan,
+                 &tanggal,
+                 &jam) != EOF){
+
+        tambahBooking(id,
+                       string(nama),
+                       string(lapangan),
+                       tanggal,
+                       jam);
+    }
+
+    fclose(file);
+    cout << "Data berhasil dibaca dari booking.txt\n";
+}
+
     Booking *bantu = head;
     int no = 1;
 
@@ -100,6 +163,8 @@ int main(){
         cout << "=================================\n";
         cout << "1. Tambah Booking\n";
         cout << "2. Tampilkan Data\n";
+        cout << "5. Simpan ke File\n";
+        cout << "6. Baca dari File\n";
         cout << "0. Keluar\n";
         cout << "=================================\n";
 
@@ -124,6 +189,12 @@ int main(){
             }
             case 2:
                 tampil();
+                break;
+            case 5:
+                simpanFile();
+                break;           
+            case 6:
+                bacaFile();
                 break;
             case 0:
                 break;
